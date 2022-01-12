@@ -12,22 +12,18 @@ let rec sum xs =
   | [] -> 0
   | h :: t -> h + sum t
 
-type state =
-  { seen : (Int.t, Int.comparator_witness) Set.t;
-    freq : int;
-  }
-
-let empty = Set.empty (module Int)
-
 let part2 xs =
-  let rec go xxs seen freq =
+  let seen = Hashtbl.create (module Int) in
+  let rec go xxs freq =
     match xxs with
-    | [] -> go xs seen freq
+    | [] -> go xs freq
     | h :: t ->
       let freq1 = freq + h in
-      if Set.exists seen ~f:(equal_int freq1) then freq1
-      else go t (Set.add seen freq1) freq1
-  in go xs empty 0
+      if Hashtbl.mem seen freq1 then freq1
+      else
+        let _ = Hashtbl.add seen ~key:freq1 ~data:1 in
+        go t freq1
+  in go xs 0
 
 let () =
   let input = parse_input () in
